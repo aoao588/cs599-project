@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Env
+.env
+.env.local
+*.env
+
+# Data persistence (rebuildable)
+data/chroma/
+*.duckdb
+*.sqlite
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+target/
+node_modules/
+
+# Reports
+*.log
+.langsmith/

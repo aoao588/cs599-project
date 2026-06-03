@@ -1,0 +1,80 @@
+# EnterpriseDocAgent
+
+## 项目简介
+面向企业内部文档（研发规范 / HR 制度 / 财务表）的 **Agentic RAG 智能问答系统**：通过 LangGraph 状态机驱动「意图路由 → Query 改写 → 工具检索 → 结果评估 → 反思重检 → 带引用作答」的多步推理闭环，解决传统 RAG「一次检索定胜负、答非所问、无引用」的痛点。
+
+## 方向
+方向一：Agentic AI 原生开发
+
+## 技术栈
+- **AI IDE**：Trae CN
+- **LLM**：DeepSeek-V3（OpenAI 兼容协议）
+- **Embedding**：通义千问 `text-embedding-v3`（DashScope OpenAI 兼容端点）
+- **Agent 框架**：LangGraph + LangChain
+- **向量库**：Chroma（本地持久化）
+- **结构化数据**：DuckDB（HR / 财务模拟表）
+- **协议**：MCP（自研 Server 暴露 vector_search / sql_query）
+- **可观测性**：LangSmith Tracing + Ragas 评估
+- **容器**：Docker + Docker Compose
+- **前端**：Streamlit
+
+## 目录结构
+```
+cs599-project/
+├── docs/
+│   └── specs/                      # SDD 三件套
+│       ├── product_spec.md         # 产品规格
+│       ├── architecture_spec.md    # 架构规格
+│       └── api_spec.md             # 接口规格
+├── src/
+│   ├── config.py                   # 配置（pydantic-settings，读 .env）
+│   ├── llm.py                      # DeepSeek 客户端封装
+│   ├── embeddings.py               # 通义 Embedding 封装
+│   ├── vectorstore.py              # Chroma 初始化
+│   ├── ingest.py                   # 语料切分 + 入库脚本
+│   ├── main.py                     # CLI 入口
+│   └── graph/                      # LangGraph 状态机
+│       ├── state.py                # 全局 State 定义
+│       ├── nodes.py                # Router / Retrieve / Grade / Generate / Reflect 节点
+│       └── build.py                # 图编译
+├── data/
+│   ├── corpus/                     # 模拟企业文档
+│   │   ├── dev/                    # 研发规范
+│   │   └── hr/                     # HR 制度
+│   └── chroma/                     # Chroma 持久化目录（gitignore）
+├── tests/                          # 单元测试
+├── .env.example                    # 环境变量模板
+├── requirements.txt
+└── LICENSE
+```
+
+## 环境搭建
+1. **依赖安装**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate    # Windows PowerShell
+   pip install -r requirements.txt
+   ```
+2. **环境变量配置**（⚠️ 不硬编码 API Key）
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 填入：
+   #   DEEPSEEK_API_KEY=sk-...
+   #   DASHSCOPE_API_KEY=sk-...
+   ```
+3. **构建向量库**（首次运行）
+   ```bash
+   python -m src.ingest
+   ```
+4. **提问**
+   ```bash
+   python -m src.main "公司年假怎么算？"
+   ```
+
+## 项目状态
+- [x] Proposal（架构设计 + Spec 初稿）
+- [ ] MVP（v0.1 完整闭环，目标 2026-06-08）
+- [ ] Final（含 MCP / 云部署 / Ragas 评估，目标 2026-06-22）
+
+## License
+MIT
