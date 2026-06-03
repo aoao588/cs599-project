@@ -67,9 +67,19 @@ cs599-project/
    python -m src.ingest
    ```
 4. **提问**
-   ```bash
-   python -m src.main "公司年假怎么算？"
-   ```
+   - CLI 单次提问：
+     ```bash
+     python -m src.main "公司年假怎么算？" --trace
+     ```
+   - 交互模式：
+     ```bash
+     python -m src.main --interactive
+     ```
+   - Web UI（Streamlit，含节点级实时进度可视化）：
+     ```bash
+     streamlit run app.py
+     # 浏览器访问 http://localhost:8501
+     ```
 
 ## 项目状态
 - [x] Proposal（架构设计 + Spec 初稿）
