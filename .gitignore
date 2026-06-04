@@ -37,3 +37,7 @@ node_modules/
 # Reports
 *.log
 .langsmith/
+
+# 评估：保留结果证据(csv/summary json)，忽略临时日志与运行缓存
+data/eval/results/full_run.log
+data/eval/results/agent_runs_cache.json

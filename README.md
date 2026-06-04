@@ -94,5 +94,15 @@ cs599-project/
 - ✅ 拒绝幻觉：知识库外问题（OOD）早退并明确告知"未找到依据"
 - ✅ 生产级：API 超时控制、tenacity 重试、流式节点耗时观测、密钥环境变量化
 
+### Ragas 评估结果（10 条 Golden QA，详见 [docs/evaluation.md](docs/evaluation.md)）
+| faithfulness | answer_relevancy | context_precision | OOD 拒答率 |
+|:---:|:---:|:---:|:---:|
+| 0.824 | 0.887 | 0.938 | 100% |
+
+```bash
+python -m src.evaluate                  # 全量评估
+python -m src.evaluate --reuse-agent     # 复用 Agent 结果，仅重跑评分（更快）
+```
+
 ## License
 MIT

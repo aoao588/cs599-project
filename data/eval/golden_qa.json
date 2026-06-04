@@ -1,0 +1,82 @@
+[
+  {
+    "id": "qa01",
+    "type": "in_domain",
+    "topic": "年假天数",
+    "question": "累计工作年限和年假天数的对应关系是怎样的？",
+    "ground_truth": "累计工作年限不满1年为0天；满1年不满10年为5天；满10年不满20年为10天；满20年及以上为15天。",
+    "source": "hr/leave-policy.md"
+  },
+  {
+    "id": "qa02",
+    "type": "in_domain",
+    "topic": "首年年假折算",
+    "question": "当年入职的员工，年假怎么折算？",
+    "ground_truth": "当年入职的员工按当年剩余日历天数与全年比例折算，公式为：当年应享年假 = 标准年假天数 ×（当年剩余日历天数 / 365），不足1天舍去。",
+    "source": "hr/leave-policy.md"
+  },
+  {
+    "id": "qa03",
+    "type": "in_domain",
+    "topic": "跨年度年假",
+    "question": "上一年度没休完的年假最迟什么时候要休完？逾期怎么处理？",
+    "ground_truth": "跨年度的年假最迟于次年3月31日前休完，逾期未休按0折算，不予补偿。",
+    "source": "hr/leave-policy.md"
+  },
+  {
+    "id": "qa04",
+    "type": "in_domain",
+    "topic": "差旅住宿标准",
+    "question": "普通员工出差的住宿费每日上限是多少？",
+    "ground_truth": "普通员工差旅住宿费每日上限为400元。",
+    "source": "hr/reimbursement-policy.md"
+  },
+  {
+    "id": "qa05",
+    "type": "in_domain",
+    "topic": "报销时限",
+    "question": "出差或消费后，报销单要在多久内提交？",
+    "ground_truth": "报销单须在出差或消费完成后15个工作日内提交，逾期不予受理。",
+    "source": "hr/reimbursement-policy.md"
+  },
+  {
+    "id": "qa06",
+    "type": "in_domain",
+    "topic": "报销审批层级",
+    "question": "单笔报销金额超过多少需要CFO或CEO审批？",
+    "ground_truth": "单笔报销超过5000元的须CFO审批，超过20000元的须CEO审批。",
+    "source": "hr/reimbursement-policy.md"
+  },
+  {
+    "id": "qa07",
+    "type": "in_domain",
+    "topic": "代码评审门禁",
+    "question": "代码评审对单元测试覆盖率有什么要求？",
+    "ground_truth": "单元测试整体覆盖率不得低于70%，新增代码覆盖率不得低于80%。",
+    "source": "dev/code-review-guideline.md"
+  },
+  {
+    "id": "qa08",
+    "type": "in_domain",
+    "topic": "分支策略",
+    "question": "hotfix 分支从哪里切出？修复后要合并到哪些分支？",
+    "ground_truth": "hotfix分支从main当前tag切出，修复并通过CI后合入main并打patch版本tag，同时cherry-pick到正在进行的release分支（如有）。",
+    "source": "dev/branch-strategy.md"
+  },
+  {
+    "id": "ood01",
+    "type": "ood",
+    "topic": "知识库外-食堂",
+    "question": "公司食堂几点开门？",
+    "ground_truth": "未在知识库中找到相关依据。",
+    "source": null
+  },
+  {
+    "id": "ood02",
+    "type": "ood",
+    "topic": "知识库外-班车",
+    "question": "公司有没有提供上下班班车？",
+    "ground_truth": "未在知识库中找到相关依据。",
+    "source": null
+  }
+]
