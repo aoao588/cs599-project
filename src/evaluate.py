@@ -57,7 +57,6 @@ from .graph.state import AgentState
 
 GOLDEN_PATH = Path("data/eval/golden_qa.json")
 RESULTS_DIR = Path("data/eval/results")
-AGENT_CACHE = RESULTS_DIR / "agent_runs_cache.json"
 REFUSAL_MARKERS = ("未在知识库", "未找到", "没有找到", "无法找到")
 
 
@@ -65,15 +64,22 @@ def load_golden(path: Path) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def load_agent_cache() -> dict:
-    if AGENT_CACHE.exists():
-        return json.loads(AGENT_CACHE.read_text(encoding="utf-8"))
+def _cache_path(mode: str) -> Path:
+    return RESULTS_DIR / f"runs_cache_{mode}.json"
+
+
+def load_run_cache(mode: str) -> dict:
+    p = _cache_path(mode)
+    if p.exists():
+        return json.loads(p.read_text(encoding="utf-8"))
     return {}
 
 
-def save_agent_cache(cache: dict) -> None:
+def save_run_cache(mode: str, cache: dict) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    AGENT_CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
+    _cache_path(mode).write_text(
+        json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
 
 def run_agent(graph, question: str) -> tuple[str, list[str]]:
@@ -112,17 +118,36 @@ def build_ragas_llm_and_embeddings():
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ragas 评估 EnterpriseDocAgent")
+    parser.add_argument(
+        "--mode",
+        choices=["agentic", "baseline"],
+        default="agentic",
+        help="agentic=完整状态机；baseline=朴素 RAG（单轮 retrieve→generate）",
+    )
     parser.add_argument("--limit", type=int, default=0, help="只评估前 N 条 in_domain（0=全部）")
     parser.add_argument("--workers", type=int, default=4, help="Ragas 并发数（越高越快，但更易触发限流）")
     parser.add_argument("--golden", default=str(GOLDEN_PATH), help="Golden QA 文件路径")
     parser.add_argument(
         "--reuse-agent",
         action="store_true",
-        help="复用上次缓存的 Agent 运行结果，跳过重跑 Agent（仅重做 Ragas 评分，省时省钱）",
+        help="复用上次缓存的运行结果，跳过重跑（仅重做 Ragas 评分，省时省钱）",
     )
     args = parser.parse_args()
+    mode = args.mode
 
-    cache = load_agent_cache() if args.reuse_agent else {}
+    cache = load_run_cache(mode) if args.reuse_agent else {}
+
+    # 根据 mode 选择被评估系统
+    if mode == "agentic":
+        graph = build_graph()
+
+        def runner(q: str) -> tuple[str, list[str]]:
+            return run_agent(graph, q)
+    else:
+        from .baseline import naive_rag
+
+        def runner(q: str) -> tuple[str, list[str]]:
+            return naive_rag(q)
 
     golden = load_golden(Path(args.golden))
     in_domain = [g for g in golden if g.get("type") == "in_domain"]
@@ -130,14 +155,12 @@ def main() -> None:
     if args.limit > 0:
         in_domain = in_domain[: args.limit]
 
-    print(f"[eval] in_domain={len(in_domain)} 条, ood={len(ood)} 条")
-    print(f"[eval] 预计 DeepSeek 调用 ≈ {len(in_domain) * 12 + len(ood) * 6} 次（Agent 运行 + 评估）\n")
+    print(f"[eval] mode={mode} · in_domain={len(in_domain)} 条, ood={len(ood)} 条")
+    print(f"[eval] 预计 DeepSeek 调用 ≈ {len(in_domain) * 12 + len(ood) * 6} 次（系统运行 + 评估）\n")
 
-    graph = build_graph()
-
-    # ---- 1. 跑 Agent 收集 in_domain 样本 ----
+    # ---- 1. 跑被评估系统收集 in_domain 样本 ----
     samples: list[SingleTurnSample] = []
-    print("=== 运行 Agent（in_domain）===")
+    print(f"=== 运行系统（mode={mode}, in_domain）===")
     for g in in_domain:
         q = g["question"]
         if q in cache:
@@ -145,7 +168,7 @@ def main() -> None:
             print(f"  [{g['id']}] {g['topic']} · (缓存) · {len(contexts)} contexts")
         else:
             t0 = time.time()
-            answer, contexts = run_agent(graph, q)
+            answer, contexts = runner(q)
             cache[q] = {"answer": answer, "contexts": contexts}
             print(f"  [{g['id']}] {g['topic']} · {time.time() - t0:.1f}s · {len(contexts)} contexts")
         samples.append(
@@ -166,7 +189,7 @@ def main() -> None:
         if q in cache:
             answer = cache[q]["answer"]
         else:
-            answer, ctx = run_agent(graph, q)
+            answer, ctx = runner(q)
             cache[q] = {"answer": answer, "contexts": ctx}
         ok = is_refusal(answer)
         refusal_hits += int(ok)
@@ -175,8 +198,8 @@ def main() -> None:
         ood_detail.append({"id": g["id"], "question": g["question"], "answer": answer, "refused": ok})
     refusal_rate = refusal_hits / len(ood) if ood else None
 
-    # 缓存 Agent 运行结果，下次可用 --reuse-agent 跳过重跑（省时省钱）
-    save_agent_cache(cache)
+    # 缓存运行结果，下次可用 --reuse-agent 跳过重跑（省时省钱）
+    save_run_cache(mode, cache)
 
     # ---- 3. Ragas 评估 in_domain ----
     print("\n=== Ragas 评分中（LLM-as-judge，请耐心等待）===")
@@ -213,12 +236,13 @@ def main() -> None:
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    csv_path = RESULTS_DIR / f"ragas_{ts}.csv"
-    json_path = RESULTS_DIR / f"summary_{ts}.json"
+    csv_path = RESULTS_DIR / f"ragas_{mode}_{ts}.csv"
+    json_path = RESULTS_DIR / f"summary_{mode}_{ts}.json"
     df.to_csv(csv_path, index=False, encoding="utf-8-sig")
     json_path.write_text(
         json.dumps(
             {
+                "mode": mode,
                 "timestamp": ts,
                 "in_domain_count": len(in_domain),
                 "metrics_mean": summary,

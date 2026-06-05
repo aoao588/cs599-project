@@ -40,4 +40,4 @@ node_modules/
 
 # 评估：保留结果证据(csv/summary json)，忽略临时日志与运行缓存
 data/eval/results/full_run.log
-data/eval/results/agent_runs_cache.json
+data/eval/results/runs_cache_*.json

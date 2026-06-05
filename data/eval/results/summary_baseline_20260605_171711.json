@@ -1,0 +1,25 @@
+{
+  "mode": "baseline",
+  "timestamp": "20260605_171711",
+  "in_domain_count": 2,
+  "metrics_mean": {
+    "faithfulness": 0.5,
+    "answer_relevancy": 0.4876,
+    "llm_context_precision_without_reference": 0.5
+  },
+  "ood_refusal_rate": 1.0,
+  "ood_detail": [
+    {
+      "id": "ood01",
+      "question": "公司食堂几点开门？",
+      "answer": "未在知识库中找到相关依据",
+      "refused": true
+    },
+    {
+      "id": "ood02",
+      "question": "公司有没有提供上下班班车？",
+      "answer": "未在知识库中找到相关依据",
+      "refused": true
+    }
+  ]
+}
