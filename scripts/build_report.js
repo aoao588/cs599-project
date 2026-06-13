@@ -52,7 +52,7 @@ function codeBlock(lines) {
     rows: [new TableRow({ children: [new TableCell({
       borders: { top: border, bottom: border, left: border, right: border },
       width: { size: CONTENT_W, type: WidthType.DXA },
-      shading: { type: ShadingType.CLEAR, fill: "F6F8FA" },
+      shading: { type: ShadingType.CLEAR, fill: "F5F5F5" },
       margins: { top: 100, bottom: 100, left: 160, right: 120 },
       children: lines.map((l) => new Paragraph({
         spacing: { after: 0, line: 250 },
@@ -82,7 +82,7 @@ function tbl(headers, rows, widths) {
   const borders = { top: border, bottom: border, left: border, right: border };
   const headRow = new TableRow({ tableHeader: true, children: headers.map((h, i) =>
     new TableCell({ borders, width: { size: widths[i], type: WidthType.DXA },
-      shading: { type: ShadingType.CLEAR, fill: "D5E8F0" },
+      shading: { type: ShadingType.CLEAR, fill: "E0E0E0" },
       margins: { top: 60, bottom: 60, left: 100, right: 100 },
       verticalAlign: VerticalAlign.CENTER,
       children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, size: 20 })] })] })) });
@@ -102,7 +102,7 @@ function coverCell(label, value, valBold) {
   const borders = { top: border, bottom: border, left: border, right: border };
   return new TableRow({ children: [
     new TableCell({ borders, width: { size: 2600, type: WidthType.DXA },
-      shading: { type: ShadingType.CLEAR, fill: "EEF3F8" },
+      shading: { type: ShadingType.CLEAR, fill: "F2F2F2" },
       margins: { top: 90, bottom: 90, left: 140, right: 100 },
       children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 22 })] })] }),
     new TableCell({ borders, width: { size: 5200, type: WidthType.DXA },
@@ -117,9 +117,9 @@ const cover = [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 1000 },
     children: [new TextRun({ text: "期末大作业报告", size: 32, color: "555555" })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 100 },
-    children: [new TextRun({ text: "EnterpriseDocAgent", bold: true, size: 36, color: "2E5E8C" })] }),
+    children: [new TextRun({ text: "EnterpriseDocAgent", bold: true, size: 36, color: "000000" })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 800 },
-    children: [new TextRun({ text: "企业知识库 Agentic RAG 智能问答系统", size: 24, color: "555555" })] }),
+    children: [new TextRun({ text: "企业知识库 Agentic RAG 智能问答系统", size: 24, color: "333333" })] }),
   new Table({
     alignment: AlignmentType.CENTER,
     width: { size: 7800, type: WidthType.DXA }, columnWidths: [2600, 5200],
@@ -309,10 +309,10 @@ const doc = new Document({
     default: { document: { run: { font: FONT, size: 22 } } },
     paragraphStyles: [
       { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { size: 30, bold: true, font: FONT, color: "1F4E79" },
+        run: { size: 30, bold: true, font: FONT, color: "000000" },
         paragraph: { spacing: { before: 320, after: 180 }, outlineLevel: 0 } },
       { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { size: 24, bold: true, font: FONT, color: "2E5E8C" },
+        run: { size: 24, bold: true, font: FONT, color: "000000" },
         paragraph: { spacing: { before: 200, after: 120 }, outlineLevel: 1 } },
     ],
   },
